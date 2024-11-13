@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\RedirectResponse;
 
 class RegisterController extends Controller
 {
@@ -48,9 +49,11 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        //dd($data);
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:4', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'mobile' => ['required', 'digits:11', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -63,9 +66,11 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        //dd($data);
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'mobile' => $data['mobile'],
             'password' => Hash::make($data['password']),
         ]);
     }

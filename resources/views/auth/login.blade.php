@@ -36,13 +36,13 @@
                                        autocomplete="current-password">
                                 <label for="customerPasswodInput">Password *</label>
 
-
-                            </div>
-                            @error('password')
-                            <span class="invalid-feedback" role="alert">
+                                @error('password')
+                                <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
-                            @enderror
+                                @enderror
+                            </div>
+
                             <button class="btn btn-primary w-100 text-uppercase" type="submit">Log In</button>
 
                             <div class="customer-option mt-4 text-center">

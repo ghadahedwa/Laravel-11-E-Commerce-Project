@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -17,6 +18,7 @@ class AdminController extends Controller
     {
         return view('admin.index');
     }
+
     public function brands()
     {
         $brands=Brand::orderBy('id','desc')->paginate(10);
@@ -201,6 +203,106 @@ class AdminController extends Controller
         }
         $category->delete();
         return redirect()->route('admin.categories')->with('status','Category has been deleted Sucessfully');
+
+    }
+
+    public function products()
+    {
+        $products=Product::orderBy('created_at','desc')->paginate(10);
+        return view('admin.products',compact('products'));
+    }
+
+    public function add_product()
+    {
+        $categories=Category::select('id','name')->orderBy('name')->get();
+        $brands=Brand::select('id','name')->orderBy('name')->get();
+        return view('admin.product-add',compact('categories','brands'));
+    }
+
+    public function product_store(Request $request)
+    {
+        //dd($request);
+        $request->validate([
+            'name'=>'required|string|max:255',
+            'slug'=>'required|string|max:255|unique:products,slug',
+            'short_description'=>'required',
+            'description'=>'required',
+            'regular_price'=>'required|numeric',
+            'sale_price'=>'required|numeric',
+            'SKU'=>'required',
+            'stock_status'=>'required',
+            'featured'=>'required',
+            'quantity'=>'required|numeric',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048',
+            'category_id'=>'required',
+            'brand_id'=>'required',
+        ]);
+
+        $product=new Product();
+        $product->name=$request->name;
+        $product->slug=Str::slug($request->slug);
+        $product->short_description=$request->short_description;
+        $product->description=$request->description;
+        $product->regular_price=$request->regular_price;
+        $product->sale_price=$request->sale_price;
+        $product->SKU=$request->SKU;
+        $product->stock_status=$request->stock_status;
+        $product->featured=$request->featured;
+        $product->quantity=$request->quantity;
+        $product->category_id=$request->category_id;
+        $product->brand_id=$request->brand_id;
+
+        if($request->hasFile('image'))
+        {
+            $image=$request->file('image');
+            $image_name=Carbon::now()->timestamp.'.'.$image->extension();
+            $this->GenerateProductThumbailsImage($image,$image_name);
+            $product->image=$image_name;
+        }
+
+        $gallery_arr=array();
+        $gallery_images="";
+        $counter=1;
+
+        if($request->hasFile('images'))
+        {
+            $allowedfileExtention=['jpg','png','jpeg'];
+            $files=$request->file('images');
+            foreach ($files as $file)
+            {
+                $gextention=$file->getClientOriginalExtension();
+                $gcheck=in_array($gextention,$allowedfileExtention);
+                if($gcheck)
+                {
+                    $gfilename=Carbon::now()->timestamp.'-'.$counter.'.'.$gextention;
+                    $this->GenerateProductThumbailsImage($file,$gfilename);
+                    array_push($gallery_arr,$gfilename);
+                    $counter++;
+                }
+            }
+
+        }
+        $gallery_images=implode(',',$gallery_arr);
+        $product->images=$gallery_images;
+        $product->save();
+
+        return redirect()->route('admin.products')->with('status','Product has been added Sucessfully');
+    }
+
+    public function GenerateProductThumbailsImage($image,$imageName)
+    {
+        $destinationPathThumbnails=public_path('uploads/products/thumbnails');
+        $destinationPath=public_path('uploads/products');
+        $img=Image::read($image->path());
+
+        $img->cover(540,689,"top");
+        $img->resize(540,689,function ($constraint){
+            $constraint->aspectRatio();
+        })->save($destinationPath.'/'.$imageName);
+
+        $img->resize(104,104,function ($constraint){
+            $constraint->aspectRatio();
+        })->save($destinationPathThumbnails.'/'.$imageName);
 
     }
 }

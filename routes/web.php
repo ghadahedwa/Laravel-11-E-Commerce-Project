@@ -26,6 +26,8 @@ Route::prefix('admin')->name('admin.')->group(function (){
         Route::get('/brands',[AdminController::class,'brands'])->name('brands');
         Route::get('/brands/add',[AdminController::class,'add_brand'])->name('brands.add');
         Route::post('/brands/store',[AdminController::class,'brand_store'])->name('brands.store');
+        Route::get('/brands/edit/{id}',[AdminController::class,'brand_edit'])->name('brands.edit');
+        Route::put('/brands/update',[AdminController::class,'brand_update'])->name('brands.update');
     });
 });
 

@@ -33,7 +33,7 @@ class AdminController extends Controller
         $request->validate([
             'name'=>'required|string|max:255',
             'slug'=>'required|string|max:255|unique:brands,slug',
-            'image'=>'mimes:png,jpg,jpeg|max:2048',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048',
         ]);
 
         $brand=new Brand();
@@ -61,7 +61,7 @@ class AdminController extends Controller
         $request->validate([
             'name'=>'required|string|max:255',
             'slug'=>'required|string|max:255|unique:brands,slug,'.$request->id,
-            'image'=>'mimes:png,jpg,jpeg|max:2048',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048',
         ]);
 
         $brand=Brand::find($request->id);
@@ -126,7 +126,7 @@ class AdminController extends Controller
         $request->validate([
             'name'=>'required|string|max:255',
             'slug'=>'required|string|max:255|unique:categories,slug',
-            'image'=>'mimes:png,jpg,jpeg|max:2048',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048',
         ]);
 
         $category=new Category();
@@ -136,7 +136,7 @@ class AdminController extends Controller
         $image=$request->file('image');
         $file_ext=$request->file('image')->extension();
         $file_name=Carbon::now()->timestamp.'.'.$file_ext;
-        //$this->GenerateCategoryThumbailsImage($image,$file_name);
+        $this->GenerateCategoryThumbailsImage($image,$file_name);
         $category->image=$file_name;
         $category->save();
 
@@ -154,7 +154,7 @@ class AdminController extends Controller
         $request->validate([
             'name'=>'required|string|max:255',
             'slug'=>'required|string|max:255|unique:categories,slug,'.$request->id,
-            'image'=>'mimes:png,jpg,jpeg|max:2048',
+            'image'=>'required|mimes:png,jpg,jpeg|max:2048',
         ]);
 
         $category=Category::find($request->id);
@@ -169,7 +169,7 @@ class AdminController extends Controller
             $image=$request->file('image');
             $file_ext=$request->file('image')->extension();
             $file_name=Carbon::now()->timestamp.'.'.$file_ext;
-            //$this->GenerateCategoryThumbailsImage($image,$file_name);
+            $this->GenerateCategoryThumbailsImage($image,$file_name);
             $category->image=$file_name;
         }
 
@@ -177,6 +177,18 @@ class AdminController extends Controller
 
         return redirect()->route('admin.categories')->with('status','Category has been updated Sucessfully');
 
+
+    }
+
+    public function GenerateCategoryThumbailsImage($image,$imageName)
+    {
+        //dd($image->path());
+        $destinationPath=public_path('uploads/categories');
+        $img=Image::read($image->path());
+        $img->cover(124,124,"top");
+        $img->resize(124,124,function ($constraint){
+            $constraint->aspectRatio();
+        })->save($destinationPath.'/'.$imageName);
 
     }
 

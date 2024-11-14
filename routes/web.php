@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BrandController;
 use App\Http\Middleware\AuthAdmin;
 
 Route::get('/', function () {
@@ -18,8 +19,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account.dashboard',[UserController::class,'index'])->name('user.index');
 });
 
-Route::middleware(['auth',AuthAdmin::class])->group(function(){
-    Route::get('/admin',[AdminController::class,'index'])->name('admin.index');
-    Route::get('/admin/brands',[AdminController::class,'brands'])->name('admin.brands');
+Route::prefix('admin')->name('admin.')->group(function (){
+    Route::middleware(['auth',AuthAdmin::class])->group(function(){
+        Route::get('/',[AdminController::class,'index'])->name('index');
+        Route::resource('category',BrandController::class);
+        Route::get('/brands',[AdminController::class,'brands'])->name('brands');
+        Route::get('/brands/add',[AdminController::class,'add_brand'])->name('brands.add');
+        Route::post('/brands/store',[AdminController::class,'brand_store'])->name('brands.store');
+    });
 });
+
 

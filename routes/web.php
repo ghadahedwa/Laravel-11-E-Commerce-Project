@@ -29,6 +29,13 @@ Route::prefix('admin')->name('admin.')->group(function (){
         Route::get('/brands/edit/{id}',[AdminController::class,'brand_edit'])->name('brands.edit');
         Route::put('/brands/update',[AdminController::class,'brand_update'])->name('brands.update');
         Route::delete('/brands/{id}/delete',[AdminController::class,'brand_delete'])->name('brands.delete');
+
+        Route::get('/categories',[AdminController::class,'categories'])->name('categories');
+        Route::get('/categories/add',[AdminController::class,'add_category'])->name('categories.add');
+        Route::post('/categories/store',[AdminController::class,'category_store'])->name('categories.store');
+        Route::get('/categories/edit/{id}',[AdminController::class,'category_edit'])->name('categories.edit');
+        Route::put('/categories/update',[AdminController::class,'category_update'])->name('categories.update');
+        Route::delete('/categories/{id}/delete',[AdminController::class,'category_delete'])->name('categories.delete');
     });
 });
 
